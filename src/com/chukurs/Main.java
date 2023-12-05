@@ -1,15 +1,14 @@
 package com.chukurs;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Main {
     private static Map<String, Purchase> purchases = new LinkedHashMap<>();
     private static NavigableMap<String, Student> students = new TreeMap<>();
+
     public static void main(String[] args) {
+
         Course jmc = new Course("jmc101", "Java Master Class", "JAVA");
         Course pymc = new Course("pymc101", "Python Master Class", "PYTHON");
 
@@ -19,9 +18,27 @@ public class Main {
         addPurchase("Chris Avatar", pymc, 129.99);
         addPurchase("Anna British", jmc, 89.99);
 
+        addPurchase("Andrew Grave", jmc, 99.99);
+        addPurchase("Austin Bowl", jmc, 159.99);
+        addPurchase("Johny Vendor", pymc, 134.99);
+        addPurchase("Astrid West", pymc, 129.99);
+        addPurchase("Trianna Brews", jmc, 89.99);
+
         purchases.forEach((k, v) -> System.out.println(k + ": " + v));
         System.out.println("-".repeat(20));
-        students.forEach((k,v)-> System.out.println(k+": "+v));
+        students.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        NavigableMap<LocalDate, List<Purchase>> datedPurchases = new TreeMap<>();
+        for (Purchase p : purchases.values()) {
+            //executing .compute() on TreeMap
+            datedPurchases.compute(p.purchaseDate(),
+                    (pdate, plist) -> {
+                        List<Purchase> list = (plist == null) ? new ArrayList<>() : plist;
+                        list.add(p);
+                        return list;
+                    });
+        }
+        datedPurchases.forEach((key,value)-> System.out.println(key+" :"+ value));
     }
 
     private static void addPurchase(String name, Course course, double price) {
@@ -33,8 +50,10 @@ public class Main {
         } else {
             existingStudent.addCourse(course);
         }
-        //day is setup this way to demonstrate that insertion is ordered
-        int day = purchases.size() + 1;
+        //Jan 1st to Jan 4th
+        int day = new Random().nextInt(1, 15);
+        //interested to see sales for each day, so map is created
+
         String key = course.courseId() + "_" + existingStudent.getId();
         int year = LocalDate.now().getYear();
         Purchase purchase = new Purchase(course.courseId(), existingStudent.getId(), price, year, day);

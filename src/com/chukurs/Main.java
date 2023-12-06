@@ -38,7 +38,57 @@ public class Main {
                         return list;
                     });
         }
-        datedPurchases.forEach((key,value)-> System.out.println(key+" :"+ value));
+
+        //tree map has
+        int currentYear = LocalDate.now().getYear();
+        LocalDate firstDay = LocalDate.ofYearDay(currentYear, 1);
+        LocalDate week1 = firstDay.plusDays(7);
+        //map similar to dated purchases map equal to first 7 entries
+        //head map excludes the value you pass
+        Map<LocalDate, List<Purchase>> week1Purchases = datedPurchases.headMap(week1);
+        //tail map includes the value you pass
+        Map<LocalDate, List<Purchase>> week2Purchases = datedPurchases.tailMap(week1);
+//        System.out.println("-".repeat(20));
+//        System.out.println("-".repeat(20));
+//        week1Purchases.forEach((k, v) -> System.out.println(k + ": " + v));
+//        System.out.println("-".repeat(20));
+//        week2Purchases.forEach((k, v) -> System.out.println(k + ": " + v));
+//        System.out.println("-".repeat(20));
+//        System.out.println("-".repeat(20));
+//        datedPurchases.forEach((key, value) -> System.out.println(key + " :" + value));
+        displayStats(1,week1Purchases);
+        displayStats(2,week2Purchases);
+        System.out.println("-".repeat(20));
+        //lastKey is lastDate as we keyed using dates
+        LocalDate lastDate = datedPurchases.lastKey();
+        var previousEntry = datedPurchases.lastEntry();
+
+//        List<Purchase> lastDaysData = previousEntry.getValue();
+//        System.out.println(lastDate+ ": "+ lastDaysData.size());
+
+        while(previousEntry !=null){
+            List<Purchase> lastDaysData = previousEntry.getValue();
+            System.out.println(lastDate+ ": "+ lastDaysData.size());
+
+            LocalDate prevDate = datedPurchases.lowerKey(lastDate);
+            previousEntry = datedPurchases.lowerEntry(lastDate);
+            lastDate = prevDate;
+            
+        }
+
+    }
+    private static void displayStats(int period, Map<LocalDate, List<Purchase>> periodData){
+        System.out.println("-".repeat(20));
+        Map<String, Integer> weeklyCounts = new TreeMap<>();
+        periodData.forEach((key,value)->{
+            System.out.println(key+": "+value);
+            for(Purchase p: value){
+                weeklyCounts.merge(p.courseId(),1, (prev,current)->{
+                    return prev+current;
+                });
+            }
+        });
+        System.out.printf("Week %d Purchases = %s%n", period, weeklyCounts);
     }
 
     private static void addPurchase(String name, Course course, double price) {
